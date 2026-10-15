@@ -1,0 +1,196 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PickGo — Buyback Calculator</title>
+<style>
+ :root{--red:#C00000;--deep:#8B0000;--gold:#D4AF37;--ink:#111;--cream:#FAF7F2;
+       --line:#E3E0DA;--muted:#7A736A;}
+ *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+ html,body{height:100%}
+ body{font:17px/1.45 -apple-system,"Segoe UI",sans-serif;background:#EFECE6;color:var(--ink);
+      display:flex;flex-direction:column;overflow:hidden}
+ header{background:var(--ink);color:#fff;padding:14px 22px;flex:none;display:flex;align-items:center;gap:11px}
+ header .b{font-weight:900;color:var(--red);background:#fff;padding:3px 10px;border-radius:5px;font-size:17px}
+ header h1{font-size:19px;font-weight:700}
+ header p{font-size:13px;color:#9A938A;margin-left:auto;text-align:right}
+ main{flex:1;min-height:0;overflow:auto;display:grid;gap:14px;padding:16px;
+      grid-template-columns:1fr;max-width:1280px;width:100%;margin:0 auto;align-content:start}
+ @media(min-width:860px){ main{grid-template-columns:1.05fr .95fr;align-items:start} }
+ .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+ .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 17px}
+ label{display:block;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+       font-weight:800;margin-bottom:9px}
+ .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+ input[type=number]{width:100%;font-size:30px;font-weight:800;padding:11px 14px;border:2px solid var(--line);
+   border-radius:9px;font-variant-numeric:tabular-nums;background:var(--cream)}
+ input[type=number]:focus{outline:none;border-color:var(--red)}
+ .sub{font-size:13px;color:var(--muted);margin-top:6px}
+ .btns{display:flex;flex-wrap:wrap;gap:8px}
+ .btn{flex:1 1 auto;min-width:86px;text-align:center;padding:12px 9px;border:2px solid var(--line);
+   border-radius:9px;background:#fff;font-weight:700;font-size:17px;cursor:pointer;user-select:none;line-height:1.2}
+ .btn.on{background:var(--red);border-color:var(--red);color:#fff}
+ .btn small{display:block;font-size:11.5px;font-weight:600;opacity:.75;margin-top:2px}
+ .out{background:var(--ink);color:#fff;border-radius:12px;padding:20px 22px}
+ .out .lab{font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:#9A938A;font-weight:800}
+ .out .pg{font-size:34px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--gold);margin-top:2px}
+ .out hr{border:0;border-top:1px solid #2E2A26;margin:13px 0}
+ .out .tot{font-size:62px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.02;margin-top:2px}
+ .out .bd{font-size:13px;color:#B5ADA2;margin-top:12px;line-height:1.65;font-variant-numeric:tabular-nums}
+ .fees{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px}
+ .chk{display:flex;align-items:center;gap:9px;padding:6px 0;font-size:15px;cursor:pointer}
+ .chk input{width:19px;height:19px;accent-color:var(--red);flex:none}
+ .chk span.r{margin-left:auto;color:var(--muted);font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums}
+ .warn{background:#FBEEEC;border-left:3px solid var(--red);padding:8px 11px;border-radius:0 6px 6px 0;
+   font-size:13.5px;color:var(--deep);font-weight:600;margin-top:9px;display:none}
+ .warn.show{display:block}
+ footer{flex:none;padding:9px 22px;font-size:12px;color:var(--muted);line-height:1.6;
+        border-top:1px solid var(--line);background:#E7E3DC}
+ footer b{color:var(--ink)}
+</style></head><body>
+
+<header><span class="b">PickGo</span><h1>Buyback Calculator</h1>
+<p>Internal · margins 15.9.2026 · follows PW live update</p></header>
+
+<main>
+  <div class="col">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Price / gram today</label>
+          <input type="number" id="pg" value="539.21" step="0.01" inputmode="decimal">
+          <div class="sub">Tael <span id="tael">20,382</span></div>
+        </div>
+        <div>
+          <label>Weight (grams)</label>
+          <input type="number" id="wt" value="10" step="0.01" inputmode="decimal">
+          <div class="sub" id="band">0 – 10g</div>
+        </div>
+      </div>
+      <div class="warn" id="over">Over 500g — not covered by this table. Check with your manager.</div>
+    </div>
+
+    <div class="card">
+      <label>Gold type</label>
+      <div class="btns" id="types"></div>
+    </div>
+
+    <div class="card">
+      <label>Order type</label>
+      <div class="btns" id="orders"></div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="out">
+      <div class="lab">Buyback price per gram</div><div class="pg" id="rpg">RM 0.00</div>
+      <hr>
+      <div class="lab">Customer receives</div><div class="tot" id="rtot">RM 0.00</div>
+      <div class="bd" id="rbd"></div>
+    </div>
+
+    <div class="card">
+      <label>Extra charges — tick only if they apply</label>
+      <div class="fees" id="fees"></div>
+    </div>
+  </div>
+</main>
+
+<footer><b>Formula:</b> price/gram × pricing purity − margin (by order type &amp; weight band).
+Consignment = pickup main-area price × 70%. &nbsp;·&nbsp; <b>Margins dated 15.9.2026</b> — update here when
+the margin sheet changes. &nbsp;·&nbsp; May differ from the daily sheet by 1–2 sen (rounding).</footer>
+
+<script>
+const GRAM_PER_TAEL = 37.7998;
+const TYPES = [
+  {k:"9999", lab:"9999", pur:0.99, band:"A"},
+  {k:"999",  lab:"999",  pur:0.98, band:"A"},
+  {k:"965",  lab:"965/950", pur:0.93, band:"B"},
+  {k:"916",  lab:"916", pur:0.90, band:"A"},
+  {k:"22k",  lab:"22K/BP", sub:"850·835·P", pur:0.85, band:"C"},
+  {k:"750",  lab:"750", pur:0.72, band:"D"},
+  {k:"585",  lab:"585", pur:0.52, band:"D"},
+  {k:"375",  lab:"375", pur:0.32, band:"D"},
+];
+const BANDS = {
+  A:{walk:[0,0,0],    main:[10,10,10], pajak:[20,20,20], sabah:[35,35,35]},
+  B:{walk:[10,10,10], main:[20,15,10], pajak:[25,20,15], sabah:[35,30,25]},
+  C:{walk:[70,65,60], main:[90,85,80], pajak:[95,90,85], sabah:[110,105,100]},
+  D:{walk:[50,45,40], main:[60,55,50], pajak:[65,60,55], sabah:[90,85,80]},
+};
+const ORDERS = [
+  {k:"walk",  lab:"Walk-in",     sub:"in store"},
+  {k:"main",  lab:"Pickup",      sub:"main area"},
+  {k:"pajak", lab:"Pawn ticket", sub:"pajak"},
+  {k:"cons",  lab:"Consignment", sub:"×70%"},
+  {k:"sabah", lab:"Sabah/Swk",   sub:"East"},
+];
+const FEES = [
+  {k:"urgent", lab:"Urgent",          rate:5,  per:"g"},
+  {k:"second", lab:"Second area",     rate:10, per:"g"},
+  {k:"weekend",lab:"Weekend / night", rate:3,  per:"g"},
+  {k:"cash",   lab:"Cash payout",     rate:3,  per:"g"},
+  {k:"agent",  lab:"Agent fee (BB)",  rate:5,  per:"g"},
+  {k:"sp1",    lab:"Surat pajak KL/JB", rate:20, per:"s"},
+  {k:"sp2",    lab:"Surat pajak outside", rate:40, per:"s"},
+  {k:"ar1",    lab:"Ar Rahnu KL/JB",  rate:40, per:"s"},
+  {k:"ar2",    lab:"Ar Rahnu outside",rate:60, per:"s"},
+];
+
+let type = "916", order = "walk";
+const $ = id => document.getElementById(id);
+const fmt = n => "RM " + n.toLocaleString("en-MY",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function chips(host, items, cur, pick){
+  host.innerHTML = "";
+  items.forEach(it=>{
+    const d = document.createElement("div");
+    d.className = "btn" + (it.k===cur ? " on" : "");
+    d.innerHTML = it.lab + (it.sub ? "<small>"+it.sub+"</small>" : "");
+    d.onclick = ()=>{ pick(it.k); rewire(); render(); };
+    host.appendChild(d);
+  });
+}
+function rewire(){
+  chips($("types"),  TYPES,  type,  k=>{type = k;});
+  chips($("orders"), ORDERS, order, k=>{order = k;});
+}
+const bandIndex = w => w<=10 ? 0 : (w<=100 ? 1 : 2);
+const bandLabel = w => ["0 – 10g","11 – 100g","101 – 500g"][bandIndex(w)];
+
+$("fees").innerHTML = FEES.map(f=>`<label class="chk">
+  <input type="checkbox" data-k="${f.k}"><span>${f.lab}</span>
+  <span class="r">−${f.rate}${f.per==="g"?"/g":""}</span></label>`).join("");
+$("fees").querySelectorAll("input").forEach(i=>i.onchange=render);
+
+function render(){
+  const pgv = parseFloat($("pg").value)||0;
+  const w   = parseFloat($("wt").value)||0;
+  $("tael").textContent = Math.round(pgv*GRAM_PER_TAEL).toLocaleString("en-MY");
+  $("band").textContent = bandLabel(w);
+  $("over").classList.toggle("show", w>500);
+
+  const t = TYPES.find(x=>x.k===type), bi = bandIndex(w), B = BANDS[t.band];
+  const eu = pgv * t.pur;
+  let perG, note;
+  if(order==="cons"){
+    perG = (eu - B.main[bi]) * 0.70;
+    note = `Purity ${(t.pur*100).toFixed(0)}% → ${fmt(eu)}/g · pickup −RM${B.main[bi]} → ${fmt(eu-B.main[bi])}/g · ×70%`;
+  } else {
+    const m = B[order][bi]; perG = eu - m;
+    note = `Purity ${(t.pur*100).toFixed(0)}% → ${fmt(eu)}/g · margin −RM${m}/g`;
+  }
+  let perGFee = 0, flat = 0, lines = [];
+  $("fees").querySelectorAll("input:checked").forEach(i=>{
+    const f = FEES.find(x=>x.k===i.dataset.k);
+    if(f.per==="g"){ perGFee += f.rate; lines.push(`${f.lab} −RM${f.rate}/g`); }
+    else { flat += f.rate; lines.push(`${f.lab} −RM${f.rate}`); }
+  });
+  const net = Math.max(perG - perGFee, 0);
+  const tot = Math.max(net * w - flat, 0);
+  $("rpg").textContent  = fmt(net);
+  $("rtot").textContent = fmt(tot);
+  $("rbd").innerHTML = note + (lines.length ? "<br>Charges: " + lines.join(" · ") : "")
+                     + `<br>${w}g × ${fmt(net)}` + (flat ? ` − ${fmt(flat)}` : "");
+}
+rewire(); render();
+</script>
+</body></html>
